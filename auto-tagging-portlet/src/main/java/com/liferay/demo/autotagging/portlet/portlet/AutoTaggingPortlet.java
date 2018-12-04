@@ -1,6 +1,6 @@
 package com.liferay.demo.autotagging.portlet;
 
-import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
+import com.liferay.demo.autotagging.api.AutoTaggingService;
 import com.liferay.demo.autotagging.portlet.constants.AutoTaggingPortletKeys;
 
 import java.io.IOException;
@@ -50,5 +50,5 @@ public class AutoTaggingPortlet extends MVCPortlet {
 	}
 
 	@Reference(cardinality= ReferenceCardinality.MANDATORY)
-	protected AutoTaggingApi _AutoTaggingService;
+	protected AutoTaggingService _AutoTaggingService;
 }

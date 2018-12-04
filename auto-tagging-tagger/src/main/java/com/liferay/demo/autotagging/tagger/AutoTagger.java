@@ -1,8 +1,11 @@
 package com.liferay.demo.autotagging.tagger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.demo.autotagging.api.AutoTaggingService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -11,6 +14,11 @@ import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.portal.kernel.model.ModelListener;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+
+import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -37,8 +45,22 @@ public class AutoTagger extends BaseModelListener<AssetEntry> {
 
 				if (mustbeTagged(entry)) {
 
-					//AutoTaggingApi ats = new AutoTaggingService();
-					//ats.Match("try to find some bonsai somewhere in the green  tree forest");
+					//TODO get all text from AssetEntry
+					String result = _AutoTaggingService.Match("try to find some bonsai somewhere in the green  tree forest");
+					ObjectMapper objectMapper = new ObjectMapper();
+					JsonNode jsonNode = null;
+					try {
+						jsonNode = objectMapper.readTree(result);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					List<JsonNode> tags = jsonNode.findValues("tag");
+					for(JsonNode tag : tags) {
+						_log.debug("Adding tag: " + tag.asText());
+						//TODO add tag to AssetEntry if there is a match.
+					}
+
 					/*String[] tags = fetchTags(entry.getTitleCurrentValue());
 
 					if (tags != null && tags.length > 0) {
@@ -88,4 +110,7 @@ public class AutoTagger extends BaseModelListener<AssetEntry> {
 			return entry.getTags().contains(triggerTag);
 		}
 	}
+
+	@Reference(cardinality= ReferenceCardinality.MANDATORY)
+	protected AutoTaggingService _AutoTaggingService;
 }

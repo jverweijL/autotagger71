@@ -1,7 +1,7 @@
 package com.liferay.demo.autotagging.service;
 
 //import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
+import com.liferay.demo.autotagging.api.AutoTaggingService;
 //import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.demo.autotagging.service.config.AutoTaggingConfiguration;
@@ -12,6 +12,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -41,10 +42,10 @@ import java.util.*;
 
 	},
 	configurationPid = "com.liferay.demo.autotagging.service.config.AutoTaggingConfiguration",
-	service = AutoTaggingApi.class
+	service = AutoTaggingService.class
 )
-public class AutoTaggingService implements AutoTaggingApi  {
-	private static Log _log = LogFactoryUtil.getLog(AutoTaggingService.class);
+public class AutoTaggingServiceImpl implements AutoTaggingService {
+	private static Log _log = LogFactoryUtil.getLog(AutoTaggingServiceImpl.class);
 	private static enum QUERYTYPE {ALERTER,TAGGER};
 
 	@Override
@@ -155,21 +156,10 @@ public class AutoTaggingService implements AutoTaggingApi  {
 	}
 
 	@Override
-	public String[] Match(String doc) {
+	public String Match(String doc) {
 		String cleantext = doc.replaceAll("\"", "").replaceAll("'", "");
 
-		System.out.println("cleantext: " + cleantext);
-
-		/*GET /my-index/_search
-		{
-			"query" : {
-				"percolate" : {
-					"field" : "query",
-							"document" : {
-						"message" : "A new bonsai tree in the office"
-					}
-				}
-		}*/
+		_log.debug("cleantext: " + cleantext);
 
 		XContentBuilder builder = null;
 		try {
@@ -177,6 +167,8 @@ public class AutoTaggingService implements AutoTaggingApi  {
 
 			builder.startObject();
 			{
+				//"min_score": 0.5,
+				builder.field("min_score",0.5);
 				builder.startObject("query");
 				{
 					builder.startObject("percolate");
@@ -194,6 +186,22 @@ public class AutoTaggingService implements AutoTaggingApi  {
 			}
 			builder.endObject();
 			_log.debug("percolate json: " + builder.string());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		RestClient client = getClient().getLowLevelClient();
+
+		try {
+			Map<String, String> params = Collections.emptyMap();
+			HttpEntity entity = new NStringEntity(builder.string(), ContentType.APPLICATION_JSON);
+			Response response = client.performRequest("GET","/" + _autotaggingConfiguration.ElasticIndex() + "/_search",params,entity);
+			client.close();
+
+			String responseBody = EntityUtils.toString(response.getEntity());
+			_log.debug(responseBody);
+			return responseBody;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

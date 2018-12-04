@@ -3,9 +3,8 @@ package com.liferay.demo.autotagging.portlet.portlet.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
+import com.liferay.demo.autotagging.api.AutoTaggingService;
 import com.liferay.demo.autotagging.portlet.constants.AutoTaggingPortletKeys;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -18,7 +17,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 @Component(
@@ -69,7 +67,7 @@ public class EditBusinessruleMVCRenderCommand implements MVCRenderCommand {
     }
 
     @Reference
-    protected AutoTaggingApi _autotaggingService;
+    protected AutoTaggingService _autotaggingService;
 
     /*@Reference(cardinality=ReferenceCardinality.MANDATORY)
     protected ShareholderService _shareholderService;*/

@@ -16,8 +16,14 @@ dependencies {
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "3.0.0"
 	compileOnly group: "org.osgi", name: "osgi.cmpn", version: "6.0.0"
 
-	//compileOnly project(":modules:elastic-auto-tagger:auto-tagging-api")
-	//compileOnly project(":modules:elastic-auto-tagger:auto-tagging-service")
+	compileOnly project(":modules:elastic-auto-tagger:auto-tagging-api")
+
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+	compileInclude group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+	compileInclude group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
+	compileInclude group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.7'
 }
 
 repositories {

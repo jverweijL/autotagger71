@@ -1,21 +1,15 @@
 package com.liferay.demo.autotagging.portlet.portlet.command;
 
-import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
+import com.liferay.demo.autotagging.api.AutoTaggingService;
 import com.liferay.demo.autotagging.portlet.constants.AutoTaggingPortletKeys;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextFactory;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.WebKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component(
         immediate = true,
@@ -45,5 +39,5 @@ public class DeleteBusinessruleMVCActionCommand extends BaseMVCActionCommand {
     }
 
     @Reference
-    protected AutoTaggingApi _autotaggingService;
+    protected AutoTaggingService _autotaggingService;
 }
