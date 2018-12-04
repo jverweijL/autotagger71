@@ -59,10 +59,13 @@ public class AutoTaggingService implements AutoTaggingApi  {
 			MainResponse response = client.info();
 			client.close();
 			msg = String.format("Hello, welcome to cluster %s", response.getClusterName());
+			System.out.println("Ping: " + msg);
 		}
 		catch (IOException e)
 		{
 			msg = String.format("Error: %s",e.getMessage());
+			e.printStackTrace();
+
 		}
 		finally {
 			return msg;
@@ -208,6 +211,8 @@ public class AutoTaggingService implements AutoTaggingApi  {
 		_autotaggingConfiguration = ConfigurableUtil.createConfigurable(
 				AutoTaggingConfiguration.class, properties);
 		System.out.println("Loaded configuration settings..");
+
+		this.Ping();
 		this.Init();
 	}
 
@@ -219,31 +224,10 @@ public class AutoTaggingService implements AutoTaggingApi  {
 		//only needed once, or check at statup whether this is available or not
 		System.out.println("Initializing Autotagger to set mappings");
 		System.out.println("Now what??");
-		//RestHighLevelClient client = getClient();
+
+		RestHighLevelClient client = getClient();
 
 		try {
-			RestHighLevelClient client = getClient();
-			MainResponse response = client.info();
-			client.close();
-			String msg = String.format("Hello, welcome to cluster %s", response.getClusterName());
-			System.out.println(msg);
-			/*IndexRequest request = new IndexRequest(
-					"posts",
-					"doc",
-					"1");
-			String jsonString = "{" +
-					"\"user\":\"kimchy\"," +
-					"\"postDate\":\"2013-01-30\"," +
-					"\"message\":\"trying out Elasticsearch\"" +
-					"}";
-			request.source(jsonString, XContentType.JSON);
-			IndexResponse indexResponse = client.index(request);*/
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-		/*try {
 			XContentBuilder builder = XContentFactory.jsonBuilder();
 			builder.startObject();
 			{
@@ -288,7 +272,7 @@ public class AutoTaggingService implements AutoTaggingApi  {
 			RestClient lowclient = client.getLowLevelClient();
 			Map<String, String> params = Collections.emptyMap();
 			HttpEntity entity = new NStringEntity(jsonString, ContentType.APPLICATION_JSON);
-			Response response = lowclient.performRequest("PUT","/",params,entity);
+			Response response = lowclient.performRequest("PUT","/" + _autotaggingConfiguration.ElasticIndex(),params,entity);
 			client.close();
 
 			this.Update("","bonsaisample","{\"match\": {\"message\": \"bonsai tree\"}}");
@@ -296,7 +280,7 @@ public class AutoTaggingService implements AutoTaggingApi  {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		}*/
+		}
 		System.out.println("Initializing Autotagger finished succesfully");
 	}
 
