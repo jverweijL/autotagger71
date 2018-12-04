@@ -6,3 +6,5 @@ blade create -t api -p com.liferay.demo.autotagging.api -c AutoTaggingApi auto-t
 blade create -t service -p com.liferay.demo.autotagging.service -c AutoTaggingService -s com.liferay.portal.kernel.model.BaseModelListener auto-tagging-service
 blade create -t portlet -p com.liferay.demo.autotagging.portlet -c AutoTaggingPortlet auto-tagging-portlet
 ```
+
+.. Trying to fix some things. After reboot connection to Elasticsearch fails ????
