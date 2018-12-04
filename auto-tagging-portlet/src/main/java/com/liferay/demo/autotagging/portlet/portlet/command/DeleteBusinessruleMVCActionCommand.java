@@ -30,15 +30,15 @@ public class DeleteBusinessruleMVCActionCommand extends BaseMVCActionCommand {
             ActionRequest actionRequest, ActionResponse actionResponse)
             throws Exception {
 
-        List<String> errors = new ArrayList<String>();
+        /*List<String> errors = new ArrayList<String>();
         ThemeDisplay themeDisplay =
                 (ThemeDisplay) actionRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
         ServiceContext serviceContext =
                 ServiceContextFactory.getInstance(actionRequest);
-
+*/
         System.out.println("Removing " + ParamUtil.getString(actionRequest, "id"));
-        //_autotaggingService.Delete(ParamUtil.getString(actionRequest, "id"));
+        _autotaggingService.Delete(ParamUtil.getString(actionRequest, "id"));
 
         //hideDefaultSuccessMessage(actionRequest);
         sendRedirect(actionRequest, actionResponse);

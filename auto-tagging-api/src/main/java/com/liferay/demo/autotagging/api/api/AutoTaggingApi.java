@@ -2,7 +2,6 @@ package com.liferay.demo.autotagging.api.api;
 
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author jverweij
@@ -15,5 +14,5 @@ public interface AutoTaggingApi {
     public String Delete(String id);
     public void Init();
     public String[] Match(String doc);
-    public Map<String, Object> Get(String id);
+    public String Get(String id);
 }

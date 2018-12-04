@@ -6,25 +6,20 @@ import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
 
 import com.liferay.demo.autotagging.service.config.AutoTaggingConfiguration;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.main.MainResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -175,7 +170,7 @@ public class AutoTaggingService implements AutoTaggingApi  {
 	}
 
 	@Override
-	public Map<String, Object> Get(String id) {
+	public String Get(String id) {
 
 		//String[] includes = new String[]{"query", "tag"};
 		//String[] excludes = Strings.EMPTY_ARRAY;
@@ -189,9 +184,9 @@ public class AutoTaggingService implements AutoTaggingApi  {
 
 	//TODO convert source string to json object (jackson)
 			//JsonNode jsonNode = JsonLoader.fromString(response.getSourceAsString());
-			System.out.println("source: " + response.getSource().get("query").toString());
+			System.out.println("source: " + response.getSourceAsString());
 
-			return response.getSourceAsMap();
+			return response.getSourceAsString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

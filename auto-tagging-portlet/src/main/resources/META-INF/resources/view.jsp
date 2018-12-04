@@ -55,7 +55,7 @@ ${ping}
                                 <ul aria-labelledby="" class="dropdown-menu dropdown-menu-right">
                                     <li><a class="dropdown-item" href="${addBusinessRule}&<%=renderResponse.getNamespace()%>id=${rule.key}" role="button">Edit</a></li>
                                     <li><a class="dropdown-item" href="#1" role="button">Test</a></li>
-                                    <li><a class="dropdown-item" href="${deleteBusinessruleActionURL}&<%=renderResponse.getNamespace()%>id=${rule.key}" role="button">Delete</a></li>
+                                    <li><a class="dropdown-item" href="${deleteBusinessruleActionURL}&<%=renderResponse.getNamespace()%>id=${rule.key}" onclick="return confirm('Are you sure?')" role="button">Delete</a></li>
                                 </ul>
                             </div>
                         </td>

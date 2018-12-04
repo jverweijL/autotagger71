@@ -27,7 +27,7 @@
         <div class="sheet-footer sheet-footer-btn-block-sm-down">
             <div class="btn-group">
                 <div class="btn-group-item">
-                    <button class="btn btn-primary" type="submit">Add</button>
+                    <button class="btn btn-primary" type="submit">${button}</button>
                 </div>
                 <div class="btn-group-item">
                     <a href="${redirect}">
