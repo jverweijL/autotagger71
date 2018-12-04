@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.service.ServiceContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -40,58 +41,46 @@ public class AutoTagger extends BaseModelListener<AssetEntry> {
 	public void onAfterCreate(AssetEntry entry) throws ModelListenerException {
 		super.onAfterCreate(entry);
 
-		/*if (entry.getClassName().equalsIgnoreCase(JournalArticle.class.getName())) {*/
-			try {
+		try {
+			_log.debug("Entry type: " + entry.getClassName());
 
-				if (mustbeTagged(entry)) {
-
-					//TODO get all text from AssetEntry
-					String result = _AutoTaggingService.Match("try to find some bonsai somewhere in the green  tree forest");
-					ObjectMapper objectMapper = new ObjectMapper();
-					JsonNode jsonNode = null;
-					try {
-						jsonNode = objectMapper.readTree(result);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					List<JsonNode> tags = jsonNode.findValues("tag");
-					for(JsonNode tag : tags) {
-						_log.debug("Adding tag: " + tag.asText());
-						//TODO add tag to AssetEntry if there is a match.
-					}
-
-					/*String[] tags = fetchTags(entry.getTitleCurrentValue());
-
-					if (tags != null && tags.length > 0) {
-						ServiceContext serviceContext = new ServiceContext();
-						serviceContext.setCompanyId(entry.getCompanyId());
-
-						//loop over comma-separated items in case of multiple tags..
-						for (String tagName: tags) {
-							//String tagName = tags[0];
-							_log.debug("tagname: " + tagName);
-							AssetTag assetTag;
-							if (AssetTagLocalServiceUtil.hasTag(entry.getGroupId(), tagName)) {
-								assetTag = AssetTagLocalServiceUtil.getTag(entry.getGroupId(), tagName);
-							} else {
-								_log.debug("create tagname: " + tagName);
-								assetTag = AssetTagLocalServiceUtil.addTag(entry.getUserId(), entry.getGroupId(), tagName, serviceContext);
-							}
-
-							long[] tagIds = { assetTag.getTagId() };
-							_log.debug("tag: " + assetTag.getName());
-							_log.debug("entryID: " + entry.getEntryId());
-
-							// connect the tag to the asset
-							AssetTagLocalServiceUtil.addAssetEntryAssetTag(entry.getEntryId(), assetTag);
-						}
-					}*/
+			if (mustbeTagged(entry)) {
+				// TODO only on actual entries, not structures!!!
+				//TODO get all text from AssetEntry
+				String result = _AutoTaggingService.Match("try to find some bonsai somewhere in the green  tree forest");
+				ObjectMapper objectMapper = new ObjectMapper();
+				JsonNode jsonNode = null;
+				try {
+					jsonNode = objectMapper.readTree(result);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (Exception ex) {
-				_log.error("Error: " + ex.getMessage());
+
+				List<JsonNode> tags = jsonNode.findValues("tag");
+
+				if (tags.size() > 0) {
+
+					ServiceContext serviceContext = new ServiceContext();
+					serviceContext.setCompanyId(entry.getCompanyId());
+
+					for (JsonNode tag : tags) {
+						AssetTag assetTag;
+						if (AssetTagLocalServiceUtil.hasTag(entry.getGroupId(), tag.asText())) {
+							_log.debug("Adding tag: " + tag.asText());
+							assetTag = AssetTagLocalServiceUtil.getTag(entry.getGroupId(), tag.asText());
+						} else {
+							_log.debug("Creating tag: " + tag.asText());
+							assetTag = AssetTagLocalServiceUtil.addTag(entry.getUserId(), entry.getGroupId(), tag.asText(), serviceContext);
+						}
+
+						AssetTagLocalServiceUtil.addAssetEntryAssetTag(entry.getEntryId(), assetTag);
+					}
+				}
+
 			}
-		/*}*/
+		} catch (Exception ex) {
+			_log.error("Error: " + ex.getMessage());
+		}
 	}
 
 

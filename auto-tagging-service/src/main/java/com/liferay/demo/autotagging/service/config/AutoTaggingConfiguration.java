@@ -42,5 +42,9 @@ public interface AutoTaggingConfiguration {
     )
     public String ElasticClusterName();
 
-
+    @Meta.AD(
+            deflt = "0.5",
+            required = false
+    )
+    public double MinScore();
 }

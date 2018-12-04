@@ -168,7 +168,7 @@ public class AutoTaggingServiceImpl implements AutoTaggingService {
 			builder.startObject();
 			{
 				//"min_score": 0.5,
-				builder.field("min_score",0.5);
+				builder.field("min_score",_autotaggingConfiguration.MinScore());
 				builder.startObject("query");
 				{
 					builder.startObject("percolate");
