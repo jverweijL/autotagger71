@@ -1,0 +1,32 @@
+Bundle-Name: auto-tagging-service
+Bundle-SymbolicName: com.liferay.demo.autotagging.service
+Bundle-Version: 1.0.0
+
+Import-Package: \
+    !org.apache.xml.resolver*,\
+    !org.apache.avalon*,\
+    !org.apache.log*,\
+    !org.apache.lucene.*,\
+    !com.carrotsearch.hppc*,\
+    !com.fasterxml.jackson*,\
+    !com.sun.jna*,\
+    !com.tdunning.math.stats*,\
+    !joptsimple*,\
+    !org.HdrHistogram*,\
+    !org.joda*,\
+    !org.locationtech.*,\
+    !com.google.common.geometry*,\
+    !com.conversantmedia*,\
+    !com.lmax*,\
+    !org.apache.commons*,\
+    !org.apache.kafka*,\
+    !org.fusesource*,\
+    !org.jctools*,\
+    !org.noggit,\
+    !org.zeromq,\
+    !com.vividsolutions*,\
+    *
+
+-fixupmessages  "Classes found in the wrong directory"; \
+    is:=warning
+

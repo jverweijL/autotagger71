@@ -1,0 +1,64 @@
+buildscript {
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins", version: "3.12.48"
+	}
+
+	repositories {
+		maven {
+			url "https://repository-cdn.liferay.com/nexus/content/groups/public"
+		}
+	}
+}
+
+//apply plugin: "com.liferay.plugin"
+
+dependencies {
+	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "3.0.0"
+	compileOnly group: "org.osgi", name: "osgi.cmpn", version: "6.0.0"
+	compileOnly project(":modules:elastic-auto-tagger:auto-tagging-api")
+	//compileOnly group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.8.3"
+	//compileOnly group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.8.3"
+	//compileOnly group: "com.fasterxml.jackson.core", name: "jackson-databin1.d", version: "2.8.3"
+
+	compileInclude group: "org.apache.httpcomponents", name: "httpasyncclient", version: "4.1.3"
+	compileInclude group: "org.apache.httpcomponents", name: "httpclient", version: "4.5.3"
+	compileInclude group: "org.apache.httpcomponents", name: "httpcore", version: "4.4.6"
+	compileInclude group: "org.apache.httpcomponents", name: "httpcore-nio", version: "4.4.6"
+
+	// https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client
+	compileInclude group: "org.elasticsearch.client", name: "elasticsearch-rest-high-level-client", version: "6.1.4"
+	// https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch
+	compileInclude group: 'org.elasticsearch', name: 'elasticsearch', version: '6.1.4'
+	// https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
+	compileInclude group: "org.elasticsearch.client", name: "elasticsearch-rest-client", version: "6.1.4"
+// https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-core
+	//compileInclude group: 'org.elasticsearch', name: 'elasticsearch-core', version: '6.2.4'
+
+	compileOnly group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.5.0"
+	compileOnly group: "com.liferay", name: "com.liferay.portal.configuration.metatype", version: "2.0.0"
+
+
+
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://repository-cdn.liferay.com/nexus/content/groups/public"
+	}
+}
+
+task copyLibs(type: Copy) {
+	from configurations.compileOnly
+	into 'lib'
+}
+
+/*
+task copyToDocker{
+	copy{
+		from ('build/libs'){
+			exclude '*.txt'
+		}
+		into '/tmp/deploy'
+	}
+}*/

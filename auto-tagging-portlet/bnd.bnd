@@ -1,0 +1,6 @@
+Bundle-Name: auto-tagging-portlet
+Bundle-SymbolicName: com.liferay.demo.autotagging.portlet
+Bundle-Version: 1.0.0
+Export-Package: com.liferay.demo.autotagging.portlet.constants
+
+-metatype: *
