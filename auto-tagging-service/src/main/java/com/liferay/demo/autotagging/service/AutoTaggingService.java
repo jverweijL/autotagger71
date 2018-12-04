@@ -6,6 +6,8 @@ import com.liferay.demo.autotagging.api.api.AutoTaggingApi;
 
 import com.liferay.demo.autotagging.service.config.AutoTaggingConfiguration;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -25,9 +27,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -44,6 +44,7 @@ import java.util.*;
 	service = AutoTaggingApi.class
 )
 public class AutoTaggingService implements AutoTaggingApi  {
+	private static Log _log = LogFactoryUtil.getLog(AutoTaggingService.class);
 	private static enum QUERYTYPE {ALERTER,TAGGER};
 
 	@Override
@@ -155,17 +156,48 @@ public class AutoTaggingService implements AutoTaggingApi  {
 
 	@Override
 	public String[] Match(String doc) {
+		String cleantext = doc.replaceAll("\"", "").replaceAll("'", "");
+
+		System.out.println("cleantext: " + cleantext);
+
 		/*GET /my-index/_search
 		{
 			"query" : {
-			"percolate" : {
-				"field" : "query",
-						"document" : {
-					"content" : "A new bonsai tree in the office"
+				"percolate" : {
+					"field" : "query",
+							"document" : {
+						"message" : "A new bonsai tree in the office"
+					}
 				}
-			}
-		}
 		}*/
+
+		XContentBuilder builder = null;
+		try {
+			builder = XContentFactory.jsonBuilder();
+
+			builder.startObject();
+			{
+				builder.startObject("query");
+				{
+					builder.startObject("percolate");
+					{
+						builder.field("field", "query");
+						builder.startObject("document");
+						{
+							builder.field("message", cleantext);
+						}
+						builder.endObject();
+					}
+					builder.endObject();
+				}
+				builder.endObject();
+			}
+			builder.endObject();
+			_log.debug("percolate json: " + builder.string());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 
@@ -289,4 +321,6 @@ public class AutoTaggingService implements AutoTaggingApi  {
 				RestClient.builder(
 						new HttpHost(host, port, protocol)));
 	}
+
+
 }
