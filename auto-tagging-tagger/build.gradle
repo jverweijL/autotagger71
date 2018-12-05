@@ -15,6 +15,9 @@ buildscript {
 dependencies {
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "3.0.0"
 	compileOnly group: "org.osgi", name: "osgi.cmpn", version: "6.0.0"
+	// https://mvnrepository.com/artifact/com.liferay/com.liferay.journal.api
+	compileOnly group: 'com.liferay', name: 'com.liferay.journal.api', version: '3.0.0'
+
 
 	compileOnly project(":modules:elastic-auto-tagger:auto-tagging-api")
 

@@ -2,10 +2,15 @@ package com.liferay.demo.autotagging.tagger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.demo.autotagging.api.AutoTaggingService;
+import com.liferay.journal.model.JournalArticleResource;
+import com.liferay.journal.service.JournalArticleLocalServiceUtil;
+import com.liferay.journal.service.JournalArticleResourceLocalServiceUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -14,11 +19,13 @@ import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.xml.*;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 
@@ -27,27 +34,54 @@ import java.util.List;
  */
 @Component(
 		immediate = true,
-		name = "AutoTagger",
+		name = "AutoTaggerBaseListener",
 		property = {
 				// TODO enter required service properties
 		},
 		service = ModelListener.class
 )
-public class AutoTagger extends BaseModelListener<AssetEntry> {
+public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implements AutoTaggerApi {
 
-	private static Log _log = LogFactoryUtil.getLog(AutoTagger.class);
+	private static Log _log = LogFactoryUtil.getLog(AutoTaggerBaseListener.class);
 
 	@Override
 	public void onAfterCreate(AssetEntry entry) throws ModelListenerException {
 		super.onAfterCreate(entry);
 
+		String message = entry.getTitleCurrentValue();
+		message += entry.getDescription();
+		message += entry.getSummary();
+
+		if (entry.getClassName().equalsIgnoreCase(JournalArticle.class.getName())) {
+			JournalArticleResource journalArticleResource = null;
+			try {
+				journalArticleResource = JournalArticleResourceLocalServiceUtil.getArticleResource(entry.getClassPK());
+				JournalArticle journalArticle = JournalArticleLocalServiceUtil.getArticle(entry.getGroupId(), journalArticleResource.getArticleId());
+				_log.debug(journalArticle.getStatus());
+				_log.debug(journalArticle.getContent());
+
+				Document xml = SAXReaderUtil.read(new StringReader(journalArticle.getContent()));
+				List<Node> fields = xml.selectNodes("/root/dynamic-element/dynamic-content");
+				for (Node field : fields) {
+					_log.debug("Adding text from field '" + field.getParent().attributeValue("name") + "'");
+					message += field.getText();
+				}
+			} catch (PortalException e) {
+				e.printStackTrace();
+			} catch (DocumentException e) {
+				e.printStackTrace();
+			}
+		}
+
+		doMatch(entry,message);
+	}
+
+	public void doMatch(AssetEntry entry, String message) {
 		try {
 			_log.debug("Entry type: " + entry.getClassName());
 
 			if (mustbeTagged(entry)) {
-				// TODO only on actual entries, not structures!!!
-				//TODO get all text from AssetEntry
-				String result = _AutoTaggingService.Match("try to find some bonsai somewhere in the green  tree forest");
+				String result = _AutoTaggingService.Match(message);
 				ObjectMapper objectMapper = new ObjectMapper();
 				JsonNode jsonNode = null;
 				try {
@@ -76,18 +110,14 @@ public class AutoTagger extends BaseModelListener<AssetEntry> {
 						AssetTagLocalServiceUtil.addAssetEntryAssetTag(entry.getEntryId(), assetTag);
 					}
 				}
-
 			}
 		} catch (Exception ex) {
 			_log.error("Error: " + ex.getMessage());
 		}
 	}
 
-
-
 	private boolean mustbeTagged(AssetEntry entry) throws PortalException {
 		//only autotag if there's an autotag tag or if it's empty
-		//String triggerTagName = props.getProperty(HAS_TAG_PROPERTY, "");
 		String triggerTagName = "autotag";
 		if (triggerTagName.isEmpty()) {
 			_log.debug("No trigger tagname found");
