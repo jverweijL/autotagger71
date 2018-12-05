@@ -3,11 +3,11 @@ package com.liferay.demo.autotagging.tagger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.liferay.journal.model.JournalArticle;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.demo.autotagging.api.AutoTaggingService;
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleResource;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalArticleResourceLocalServiceUtil;
@@ -15,11 +15,15 @@ import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.xml.*;
+import com.liferay.portal.kernel.xml.Document;
+import com.liferay.portal.kernel.xml.DocumentException;
+import com.liferay.portal.kernel.xml.Node;
+import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -49,14 +53,14 @@ public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implem
 		super.onAfterCreate(entry);
 
 		String message = entry.getTitleCurrentValue();
-		message += entry.getDescription();
-		message += entry.getSummary();
+		message += " " + entry.getDescription();
+		message += " " + entry.getSummary();
 
 		if (entry.getClassName().equalsIgnoreCase(JournalArticle.class.getName())) {
 			JournalArticleResource journalArticleResource = null;
 			try {
 				journalArticleResource = JournalArticleResourceLocalServiceUtil.getArticleResource(entry.getClassPK());
-				JournalArticle journalArticle = JournalArticleLocalServiceUtil.getArticle(entry.getGroupId(), journalArticleResource.getArticleId());
+				JournalArticle journalArticle = JournalArticleLocalServiceUtil.getLatestArticle(entry.getGroupId(), journalArticleResource.getArticleId());
 				_log.debug(journalArticle.getStatus());
 				_log.debug(journalArticle.getContent());
 
@@ -64,7 +68,7 @@ public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implem
 				List<Node> fields = xml.selectNodes("/root/dynamic-element/dynamic-content");
 				for (Node field : fields) {
 					_log.debug("Adding text from field '" + field.getParent().attributeValue("name") + "'");
-					message += field.getText();
+					message += " " +  field.getText();
 				}
 			} catch (PortalException e) {
 				e.printStackTrace();
@@ -75,6 +79,7 @@ public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implem
 
 		doMatch(entry,message);
 	}
+
 
 	public void doMatch(AssetEntry entry, String message) {
 		try {
@@ -116,7 +121,7 @@ public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implem
 		}
 	}
 
-	private boolean mustbeTagged(AssetEntry entry) throws PortalException {
+	public boolean mustbeTagged(AssetEntry entry) throws PortalException {
 		//only autotag if there's an autotag tag or if it's empty
 		String triggerTagName = "autotag";
 		if (triggerTagName.isEmpty()) {
