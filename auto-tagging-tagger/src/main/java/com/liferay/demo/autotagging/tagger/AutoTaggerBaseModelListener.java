@@ -8,28 +8,21 @@ import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.demo.autotagging.api.AutoTaggingService;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleResource;
-import com.liferay.journal.service.JournalArticleLocalServiceUtil;
-import com.liferay.journal.service.JournalArticleResourceLocalServiceUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.model.BaseModelListener;
 
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.DocumentException;
-import com.liferay.portal.kernel.xml.Node;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 
 
@@ -38,46 +31,46 @@ import java.util.List;
  */
 @Component(
 		immediate = true,
-		name = "AutoTaggerBaseListener",
+		name = "AutoTaggerBaseModelListener",
 		property = {
 				// TODO enter required service properties
 		},
 		service = ModelListener.class
 )
-public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implements AutoTaggerApi {
+public class AutoTaggerBaseModelListener extends BaseModelListener<JournalArticle> implements AutoTaggerApi {
 
-	private static Log _log = LogFactoryUtil.getLog(AutoTaggerBaseListener.class);
+	private static Log _log = LogFactoryUtil.getLog(AutoTaggerBaseModelListener.class);
 
 	@Override
-	public void onAfterCreate(AssetEntry entry) throws ModelListenerException {
-		super.onAfterCreate(entry);
+	public void onAfterCreate(JournalArticle article) throws ModelListenerException {
+		//super.onAfterCreate(entry);
 
-		String message = entry.getTitleCurrentValue();
+		/*String message = entry.getTitleCurrentValue();
 		message += " " + entry.getDescription();
-		message += " " + entry.getSummary();
 
-		if (entry.getClassName().equalsIgnoreCase(JournalArticle.class.getName())) {
-			JournalArticleResource journalArticleResource = null;
-			try {
-				journalArticleResource = JournalArticleResourceLocalServiceUtil.getArticleResource(entry.getClassPK());
-				JournalArticle journalArticle = JournalArticleLocalServiceUtil.getLatestArticle(entry.getGroupId(), journalArticleResource.getArticleId());
-				_log.debug(journalArticle.getStatus());
-				_log.debug(journalArticle.getContent());
+		/*try {
 
-				Document xml = SAXReaderUtil.read(new StringReader(journalArticle.getContent()));
-				List<Node> fields = xml.selectNodes("/root/dynamic-element/dynamic-content");
-				for (Node field : fields) {
-					_log.debug("Adding text from field '" + field.getParent().attributeValue("name") + "'");
-					message += " " +  field.getText();
-				}
-			} catch (PortalException e) {
-				e.printStackTrace();
-			} catch (DocumentException e) {
-				e.printStackTrace();
+			Document xml = SAXReaderUtil.read(new StringReader(article.getContent()));
+			List<Node> fields = xml.selectNodes("/root/dynamic-element/dynamic-content");
+			for (Node field : fields) {
+				_log.debug("Adding text from field '" + field.getParent().attributeValue("name") + "'");
+				message += " " + field.getText();
 			}
-		}
 
-		doMatch(entry,message);
+		} catch (DocumentException e) {
+			e.printStackTrace();
+		}*/
+
+		//TODO put it on the message bus since OnAfterCreate is a bit misleading... it's not all materialized in the DB yet.
+
+
+		//Fire and forget principle
+		//Listeners should handle this
+		Message message = new Message();
+		message.put("key", article.getPrimaryKey());
+		_MessageBus.sendMessage("Autotagger", message);
+
+		//doMatch(entry, message);
 	}
 
 
@@ -130,11 +123,15 @@ public class AutoTaggerBaseListener extends BaseModelListener<AssetEntry> implem
 		} else {
 			_log.debug("Checking entry for tag " + triggerTagName);
 			AssetTag triggerTag = AssetTagLocalServiceUtil.getTag(entry.getGroupId(), triggerTagName);
-			_log.debug("Entry has tag: " + entry.getTags().contains(triggerTag));
+			_log.debug("Entry has triggertag: " + entry.getTags().contains(triggerTag));
 			return entry.getTags().contains(triggerTag);
 		}
 	}
 
-	@Reference(cardinality= ReferenceCardinality.MANDATORY)
+	@Reference(cardinality = ReferenceCardinality.MANDATORY)
 	protected AutoTaggingService _AutoTaggingService;
+
+	@Reference
+	MessageBus _MessageBus;
+
 }

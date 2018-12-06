@@ -18,6 +18,10 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.liferay/com.liferay.journal.api
 	compileOnly group: 'com.liferay', name: 'com.liferay.journal.api', version: '3.0.0'
 
+	// https://mvnrepository.com/artifact/org.osgi/org.osgi.framework
+	compileOnly group: 'org.osgi', name: 'org.osgi.framework', version: '1.9.0'
+
+
 
 	compileOnly project(":modules:elastic-auto-tagger:auto-tagging-api")
 
