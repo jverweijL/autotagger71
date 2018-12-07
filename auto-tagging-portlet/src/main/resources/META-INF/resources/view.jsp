@@ -20,7 +20,7 @@
     <portlet:param name="redirect" value="${param.redirect}" />
 </portlet:actionURL>--%>
 
-${ping}
+<%--${ping}--%>
 
 <div class="sheet">
     <div class="sheet-header">
@@ -60,7 +60,7 @@ ${ping}
                             </div>
                         </td>
                         <td class="col-10">
-                            <a class="table-link" href="${rule.key}">${rule.value}</a>
+                            <a class="table-link" href="${addBusinessRule}&<%=renderResponse.getNamespace()%>id=${rule.key}">${rule.value}</a>
                         </td>
                     </tr>
                     </c:forEach>

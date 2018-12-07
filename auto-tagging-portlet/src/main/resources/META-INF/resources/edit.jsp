@@ -10,7 +10,7 @@
     <div class="sheet sheet-lg">
         <div class="sheet-header">
             <h2 class="sheet-title">${title}</h2>
-            <div class="sheet-text">The businessrule is based on an elasticsearch query where you can reference to the <em>message</em> field. In the example you see the autotagger will look for the words 'bonsai or 'tree' with a match query and it is <a href="http://jsonlint.com">valid json</a>. More info on elasticsearch queries can be found <a href=" " target="_blank">here</a>.</div>
+            <div class="sheet-text">The businessrule is based on an elasticsearch query where you can reference to the <em>message</em> field. In the example you see the autotagger will look for the words 'bonsai or 'tree' with a match query and it is <a href="http://jsonlint.com">valid json</a>. More info on elasticsearch queries can be found <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.1/query-dsl.html" target="_blank">here</a>.</div>
         </div>
         <div class="sheet-section">
             <div class="form-group">
