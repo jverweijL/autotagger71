@@ -91,7 +91,7 @@ public class AutoTaggerConfigurator {
 
         // Create the destination
         Destination destination = _destinationFactory.createDestination(destinationConfiguration);
-        _log.debug("My desitnation is " + destination.getName());
+        _log.debug("My destination is " + destination.getName());
 
         // Add the destination to the OSGi service registry
 
