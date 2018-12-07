@@ -29,29 +29,28 @@ import java.io.StringReader;
 import java.util.List;
 
 @Component(
-        immediate=true,property=("destination.name=Autotagger"),
+        immediate=true,property=("destination.name=" + AutoTaggerConfigurator.DESTINATION),
         service = MessageListener.class
 )
 public class AutoTaggerJournalMessageListener implements MessageListener {
 
+    private long WAITTIME = 2000;
+
     @Override
     public void receive(Message message) throws MessageListenerException {
 
-        _log.debug("AutoTaggerJournalMessageListener Received a message");
-        _log.debug("What are you telling me...process articleId " + message.get("articleId"));
-        _log.debug("What are you telling me...process groupId " + message.get("groupId"));
-        _log.debug("Let's wait a second or five");
-
         try {
-            Thread.sleep(2000);
+            _log.debug("Let's wait " + WAITTIME + " milliseconds..");
+            Thread.sleep(WAITTIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         JournalArticle article = null;
+        AssetEntry entry = null;
         try {
             article = _JournalArticleLocalService.getArticle((long)message.get("groupId"),(String)message.get("articleId"));
-            _log.debug(article.getVersion());
+            entry = _AssetEntryLocalService.getEntry(JournalArticle.class.getName(),article.getResourcePrimKey());
         } catch (PortalException e) {
             e.printStackTrace();
         }
@@ -72,20 +71,6 @@ public class AutoTaggerJournalMessageListener implements MessageListener {
             } catch (DocumentException e) {
                 e.printStackTrace();
             }
-        }
-
-        _log.debug("content: " + content);
-
-        /*_log.debug(article.getResourcePrimKey());
-        _log.debug(article.getClassPK());
-        _log.debug(article.getPrimaryKey());*/
-
-        AssetEntry entry = null;
-        try {
-            entry = _AssetEntryLocalService.getEntry(JournalArticle.class.getName(),article.getResourcePrimKey());
-            _log.debug("entry: " + entry.getTitle());
-        } catch (PortalException e1) {
-            e1.printStackTrace();
         }
 
         doMatch(entry,content);
@@ -154,6 +139,5 @@ public class AutoTaggerJournalMessageListener implements MessageListener {
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected AssetEntryLocalService _AssetEntryLocalService;
 
-    private static final Log _log = LogFactoryUtil.getLog(
-            AutoTaggerJournalMessageListener.class);
+    private static final Log _log = LogFactoryUtil.getLog(AutoTaggerJournalMessageListener.class);
 }

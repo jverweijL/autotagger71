@@ -48,10 +48,11 @@ public class AutoTaggerConfigurator {
 )
 public class AutoTaggerConfigurator {
 
+    public static final String DESTINATION = "liferay/autotagger/task";
+
     @Activate
     protected void activate(BundleContext bundleContext) {
         _log.debug("Howdy, I'm AutoTaggerConfigurator, here to serve you.");
-        BundleContext _bundleContext;
 
         _bundleContext = bundleContext;
 
@@ -60,7 +61,7 @@ public class AutoTaggerConfigurator {
         DestinationConfiguration destinationConfiguration =
                 new DestinationConfiguration(
                         DestinationConfiguration.DESTINATION_TYPE_SERIAL,
-                        "Autotagger");
+                        DESTINATION);
 
         // Set the DestinationConfiguration's max queue size and
         // rejected execution handler.
@@ -118,6 +119,7 @@ public class AutoTaggerConfigurator {
 
             Destination destination = _bundleContext.getService(
                     serviceRegistration.getReference());
+            _log.debug("Deactivate destination " + destination.getName());
 
             serviceRegistration.unregister();
 

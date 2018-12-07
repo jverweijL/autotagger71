@@ -50,7 +50,7 @@ public class AutoTaggerBaseModelListener extends BaseModelListener<JournalArticl
 		Message message = new Message();
 		message.put("articleId", article.getArticleId());
 		message.put("groupId", article.getGroupId());
-		_MessageBus.sendMessage("Autotagger", message);
+		_MessageBus.sendMessage(AutoTaggerConfigurator.DESTINATION, message);
 	}
 
 	@Reference
